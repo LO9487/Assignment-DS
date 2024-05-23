@@ -18,8 +18,9 @@ import { Button } from "../ui/button";
 import { ChangeEvent, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { isBase64Image } from "@/lib/utils";
-
+import { usePathname, useRouter } from "next/navigation";
 import { useUploadThing } from "@/lib/uploadthing";
+import { updateUser } from "@/lib/actions/user.actions";
 
 interface Props {
     user: {
@@ -36,7 +37,8 @@ interface Props {
 
 const AccountProfile = ({ user, btnTitle }: Props) => {
   const [files, setFiles] = useState<File[]>([]);
-
+  const router = useRouter();
+  const pathname = usePathname();
   const { startUpload } = useUploadThing("media");
 
     const form = useForm({
@@ -49,6 +51,8 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
           },
 
     })
+
+
       const handleImage = ( e: ChangeEvent<HTMLInputElement>,
         fieldChange: (value: string) => void
       ) => {
@@ -84,7 +88,21 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
             values.profile_photo = imgRes[0].url; 
           }
         }
-        // Update User Profile
+        
+        await updateUser({
+          name: values.name,
+          path: pathname,
+          username: values.username,
+          userId: user.id,
+          bio: values.bio,
+          image: values.profile_photo,
+        });
+
+        if (pathname === "/profile/edit") {
+          router.back();
+        } else {
+          router.push("/");
+        }
       };
 
       return (
@@ -127,6 +145,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
                       onChange={(e) => handleImage(e, field.onChange)}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
