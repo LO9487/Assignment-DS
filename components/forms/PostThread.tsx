@@ -37,7 +37,7 @@ interface Props {
 
 function PostThread({userId}:{userId:string}){
     const router = useRouter();
-    const pathname = usePathname();
+    const pathname = usePathname() ?? "";
 
   
       const form = useForm({
