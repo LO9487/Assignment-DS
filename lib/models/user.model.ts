@@ -26,10 +26,16 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  communities: [
+  interactions: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Community",
+      postId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Thread",
+      },
+      interactionType: {
+        type: String,
+        enum: ["like", "comment"],
+      },
     },
   ],
 });

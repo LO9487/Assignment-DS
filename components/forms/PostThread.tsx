@@ -1,73 +1,51 @@
-"use client"
+"use client";
 import { useForm } from "react-hook-form";
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-  } from "@/components/ui/form";
-
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { usePathname, useRouter } from "next/navigation";
-
-import { updateUser } from "@/lib/actions/user.actions";
-import { ThreadValidation } from "@/lib/validations/thread";
 import { createThread } from "@/lib/actions/thread.actions";
+import { ThreadValidation } from "@/lib/validations/thread";
 
 interface Props {
-    user: {
-      id: string;
-      objectId: string;
-      username: string;
-      name: string;
-      bio: string;
-      image: string;
-    };
-    btnTitle: string;
+  userId: string;
 }
 
+const ThreadValidationWithTags = ThreadValidation.extend({
+  tags: z.string().optional().transform((val) => val ? val.split(',').map(tag => tag.trim()) : [])
+});
 
+function PostThread({ userId }: Props) {
+  const router = useRouter();
+  const pathname = usePathname() ?? "";
 
+  const form = useForm({
+    resolver: zodResolver(ThreadValidationWithTags),
+    defaultValues: {
+      thread: '',
+      tags: [], // Default value as an array of strings
+      accountId: userId,
+    },
+  });
 
-function PostThread({userId}:{userId:string}){
-    const router = useRouter();
-    const pathname = usePathname() ?? "";
+  const onSubmit = async (values: z.infer<typeof ThreadValidationWithTags>) => {
+    await createThread({
+      text: values.thread,
+      author: userId,
+      communityId: null,
+      path: pathname,
+      tags: values.tags,
+    });
 
-  
-      const form = useForm({
-          resolver: zodResolver(ThreadValidation),
-          defaultValues: {
-              thread:'',
-              accountId: userId,
-            },
-  
-      })
+    router.push("/");
+  };
 
-      const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
-        await createThread({
-          text: values.thread,
-          author: userId,
-          communityId: null,
-          path: pathname,
-        });
-    
-        router.push("/");
-      };
-    
-      
-
-    return (
-        <Form {...form}>
-      <form
-        className='mt-10 flex flex-col justify-start gap-10'
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
+  return (
+    <Form {...form}>
+      <form className='mt-10 flex flex-col justify-start gap-10' onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name='thread'
@@ -83,13 +61,27 @@ function PostThread({userId}:{userId:string}){
             </FormItem>
           )}
         />
-
+        <FormField
+          control={form.control}
+          name='tags'
+          render={({ field }) => (
+            <FormItem className='flex w-full flex-col gap-3'>
+              <FormLabel className='text-base-semibold text-light-2'>
+                Tags (comma separated)
+              </FormLabel>
+              <FormControl className='no-focus border border-dark-4 bg-dark-3 text-light-1'>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button type='submit' className='bg-primary-500'>
           Post
         </Button>
       </form>
     </Form>
-    );
-
+  );
 }
+
 export default PostThread;
