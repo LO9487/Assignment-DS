@@ -189,7 +189,7 @@ export async function recommendPosts(userId: string) {
       tags.forEach((tag: string) => { 
         const weight = interaction.interactionType === "like" ? 1 : 0.5;
         if (tagWeights.has(tag)) {
-          tagWeights.set(tag, tagWeights.get(tag)! + weight); // Using non-null assertion
+          tagWeights.set(tag, tagWeights.get(tag)! + weight); 
         } else {
           tagWeights.set(tag, weight);
         }

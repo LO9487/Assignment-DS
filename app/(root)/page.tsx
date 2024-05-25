@@ -16,7 +16,7 @@ export default async function Home() {
           <p className='no-result'>No threads found</p>
         ) : (
           <>
-            {result.posts.map((post: any) => ( // Explicitly define type for 'post'
+            {result.posts.map((post: any) => ( 
               <ThreadCard
                 key={post._id}
                 id={post._id}
@@ -27,8 +27,8 @@ export default async function Home() {
                 community={post.community}
                 createdAt={post.createdAt}
                 comments={post.children}
-                tags={post.tags}  // Display tags
-                likes={post.likes} // Include likes
+                tags={post.tags}  
+                likes={post.likes} 
               />
             ))}
           </>

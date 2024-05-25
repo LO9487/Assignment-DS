@@ -14,12 +14,12 @@ async function Page({ searchParams }: { searchParams: { [key: string]: string | 
 
   const result = await fetchUsers({
     userId: user.id,
-    searchString: searchParams.q || "", // Provide a default value
+    searchString: searchParams.q || "", 
     pageNumber: searchParams?.page ? +searchParams.page : 1,
     pageSize: 25,
   });
 
-  const postsResult = await searchPosts(searchParams.q || ""); // Provide a default value
+  const postsResult = await searchPosts(searchParams.q || ""); 
 
   return (
     <section>
@@ -29,16 +29,7 @@ async function Page({ searchParams }: { searchParams: { [key: string]: string | 
           <p className='no-result'>No Result</p>
         ) : (
           <>
-            {result.users.map((person) => (
-              <UserCard
-                key={person.id}
-                id={person.id}
-                name={person.name}
-                username={person.username}
-                imgUrl={person.image}
-                personType='User'
-              />
-            ))}
+           
             {postsResult.map((post: any) => ( // Explicitly define type for 'post'
               <ThreadCard
                 key={post._id}
