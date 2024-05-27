@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios"; // Ensure axios is imported correctly
 import { likePost } from "@/lib/actions/thread.actions";
 
 interface LikeButtonProps {
@@ -17,10 +16,8 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId, userId, initialLikes })
   const handleLike = async () => {
     setIsLoading(true);
     try {
-      await axios.post(`/api/posts/${postId}/like`);
+      await likePost(userId, postId);
       setLikes(likes + 1); // Increment the like count
-    } catch (error) {
-      console.error('Error liking post:', error);
     } finally {
       setIsLoading(false);
     }

@@ -1,8 +1,5 @@
 import { redirect } from "next/navigation";
-
-// import { fetchCommunityPosts } from "@/lib/actions/community.actions";
 import { fetchUserPosts } from "@/lib/actions/user.actions";
-
 import ThreadCard from "../cards/ThreadCard";
 
 interface Result {
@@ -24,6 +21,7 @@ interface Result {
       image: string;
     } | null;
     createdAt: string;
+    likes: number;
     children: {
       author: {
         image: string;
@@ -39,16 +37,13 @@ interface Props {
 }
 
 async function ThreadsTab({ currentUserId, accountId, accountType }: Props) {
-  let result: Result;
+  let result: Result | null;
 
-//   if (accountType === "Community") {
-//     result = await fetchCommunityPosts(accountId);
-//   } else {
-    result = await fetchUserPosts(accountId);
-//   }
+  result = await fetchUserPosts(accountId);
 
   if (!result) {
     redirect("/");
+    return null;
   }
 
   return (
@@ -61,16 +56,14 @@ async function ThreadsTab({ currentUserId, accountId, accountType }: Props) {
           parentId={thread.parentId}
           content={thread.text}
           author={
-            accountType == 'User'
-            ? {name: result.name, image: result.image,id: result.id }
-            :{name: thread.author.name, image: thread.author.image, id:thread.author.id }
-
-
+            accountType === 'User'
+              ? { name: result.name, image: result.image, id: result.id }
+              : { name: thread.author.name, image: thread.author.image, id: thread.author.id }
           }
-          community={thread.community
-          }
+          community={thread.community}
           createdAt={thread.createdAt}
           comments={thread.children}
+          likes={thread.likes}
         />
       ))}
     </section>

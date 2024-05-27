@@ -1,12 +1,9 @@
 "use server";
-
+import { Types } from "mongoose";
 import { revalidatePath } from "next/cache";
 import { connectToDB } from "../mongoose";
 import User from "../models/user.model";
 import Thread from "../models/thread.model";
-
-
-
 
 interface Params {
   text: string;
@@ -143,11 +140,14 @@ export async function addCommentToThread(threadId: string, commentText: string, 
   }
 }
 
-export async function likePost(userId: string, postId: string) {
+export async function likePost(userId: string, threadId: string) {
   await connectToDB();
 
   try {
-    const post = await Thread.findById(postId);
+    // Ensure the userId is in the correct format
+    const objectIdUserId = Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : userId;
+
+    const post = await Thread.findById(threadId);
     if (!post) {
       throw new Error("Post not found");
     }
@@ -155,7 +155,7 @@ export async function likePost(userId: string, postId: string) {
     post.likes += 1;
     await post.save();
 
-    await User.findByIdAndUpdate(userId, {
+    await User.findByIdAndUpdate(objectIdUserId, {
       $push: {
         interactions: {
           postId: post._id,
