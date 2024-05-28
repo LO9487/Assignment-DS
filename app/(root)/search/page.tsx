@@ -29,7 +29,6 @@ async function Page({ searchParams }: { searchParams: { [key: string]: string | 
           <p className='no-result'>No Result</p>
         ) : (
           <>
-           
             {postsResult.map((post: any) => ( // Explicitly define type for 'post'
               <ThreadCard
                 key={post._id}

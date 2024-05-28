@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { connectToDB } from "../mongoose";
 import User from "../models/user.model";
 import Thread from "../models/thread.model";
+import { validateObjectId } from "../utils";
 
 interface Params {
   text: string;
@@ -105,7 +106,7 @@ export async function fetchThreadById(threadId: string) {
       })
       .exec();
 
-      return thread ? thread.toObject() : null;
+    return thread ? thread.toObject() : null;
   } catch (err) {
     console.error("Error while fetching thread:", err);
     throw new Error("Unable to fetch thread");
@@ -140,13 +141,11 @@ export async function addCommentToThread(threadId: string, commentText: string, 
   }
 }
 
+
 export async function likePost(userId: string, threadId: string) {
   await connectToDB();
 
   try {
-    // Ensure the userId is in the correct format
-    const objectIdUserId = Types.ObjectId.isValid(userId) ? new Types.ObjectId(userId) : userId;
-
     const post = await Thread.findById(threadId);
     if (!post) {
       throw new Error("Post not found");
@@ -155,14 +154,22 @@ export async function likePost(userId: string, threadId: string) {
     post.likes += 1;
     await post.save();
 
-    await User.findByIdAndUpdate(objectIdUserId, {
-      $push: {
-        interactions: {
-          postId: post._id,
-          interactionType: "like",
+    // Use the utility function to validate and convert the thread ID
+    const objectIdThreadId = validateObjectId(threadId);
+
+    // Update user interactions without casting userId to ObjectId
+    await User.findOneAndUpdate(
+      { id: userId },
+      {
+        $push: {
+          interactions: {
+            postId: objectIdThreadId,
+            interactionType: "like",
+          },
         },
       },
-    });
+      { upsert: true } // Ensure the update creates the document if it doesn't exist
+    );
   } catch (err) {
     console.error("Error while liking post:", err);
     throw new Error("Unable to like post");
