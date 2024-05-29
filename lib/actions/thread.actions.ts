@@ -218,26 +218,48 @@ export async function recommendPosts(userId: string) {
   }
 }
 
-export async function searchPosts(searchString: string) {
+export async function searchPosts(searchString: string, pageNumber = 1, pageSize = 20) {
   connectToDB();
 
   try {
     const regex = new RegExp(searchString, "i");
 
-    const posts = await Thread.find({
+    const skipAmount = (pageNumber - 1) * pageSize;
+
+    const postsQuery = Thread.find({
       $or: [
         { text: { $regex: regex } },
         { tags: { $regex: regex } },
       ],
     })
+      .skip(skipAmount)
+      .limit(pageSize)
       .populate({
         path: "author",
         model: User,
         select: "_id name image",
       })
-      .exec();
+      .populate({
+        path: "children",
+        model: Thread,
+        populate: {
+          path: "author",
+          model: User,
+          select: "_id name image",
+        },
+      });
 
-    return posts;
+    const totalPostsCount = await Thread.countDocuments({
+      $or: [
+        { text: { $regex: regex } },
+        { tags: { $regex: regex } },
+      ],
+    });
+
+    const posts = await postsQuery.exec();
+    const isNext = totalPostsCount > skipAmount + posts.length;
+
+    return { posts, isNext };
   } catch (err) {
     console.error("Error while searching posts:", err);
     throw new Error("Unable to search posts");
