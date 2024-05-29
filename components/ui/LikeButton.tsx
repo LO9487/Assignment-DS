@@ -34,7 +34,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId, userId, initialLikes })
         onClick={handleLike}
         style={{ opacity: isLoading ? 0.5 : 1 }}
       />
-      <span className="ml-2">{likes}</span>
+      <span className="ml-2" style={{ color: 'grey' }}>{likes}</span>
     </div>
   );
 };
