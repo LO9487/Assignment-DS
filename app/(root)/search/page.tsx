@@ -33,7 +33,7 @@ async function Page({
           <p className='no-result'>No Result</p>
         ) : (
           <>
-            {result.posts.map((post: any) => ( // Explicitly define type for 'post'
+            {result.posts.map((post: any) => ( 
               <PostCard
                 key={post._id}
                 id={post._id}

@@ -76,7 +76,7 @@ export async function fetchPosts(pageNumber = 1, pageSize = 20) {
 }
 
 export async function fetchThreadById(threadId: string) {
-  connectToDB();
+  await connectToDB();
 
   try {
     const thread = await Thread.findById(threadId)
@@ -104,14 +104,16 @@ export async function fetchThreadById(threadId: string) {
           },
         ],
       })
+      .lean() // Convert to plain JavaScript object
       .exec();
 
-    return thread ? thread.toObject() : null;
+    return thread ? JSON.parse(JSON.stringify(thread)) : null; // Ensure no circular references
   } catch (err) {
     console.error("Error while fetching thread:", err);
     throw new Error("Unable to fetch thread");
   }
 }
+
 
 export async function addCommentToThread(threadId: string, commentText: string, userId: string, path: string) {
   connectToDB();
@@ -135,11 +137,19 @@ export async function addCommentToThread(threadId: string, commentText: string, 
     await originalThread.save();
 
     revalidatePath(path);
+
+    // Return the newly created comment
+    return await savedCommentThread.populate({
+      path: "author",
+      model: User,
+      select: "_id name image",
+    }).execPopulate();
   } catch (err) {
     console.error("Error while adding comment:", err);
     throw new Error("Unable to add comment");
   }
 }
+
 
 
 export async function likePost(userId: string, threadId: string) {
@@ -177,10 +187,10 @@ export async function likePost(userId: string, threadId: string) {
 }
 
 export async function recommendPosts(userId: string) {
-  connectToDB();
+  await connectToDB();
 
   try {
-    const user = await User.findById(userId).populate({
+    const user = await User.findOne({ id: userId }).populate({
       path: "interactions.postId",
       model: Thread,
     });
@@ -191,12 +201,12 @@ export async function recommendPosts(userId: string) {
 
     const tagWeights = new Map<string, number>();
 
-    user.interactions.forEach((interaction: any) => { 
+    user.interactions.forEach((interaction: any) => {
       const tags = interaction.postId.tags;
-      tags.forEach((tag: string) => { 
+      tags.forEach((tag: string) => {
         const weight = interaction.interactionType === "like" ? 1 : 0.5;
         if (tagWeights.has(tag)) {
-          tagWeights.set(tag, tagWeights.get(tag)! + weight); 
+          tagWeights.set(tag, tagWeights.get(tag)! + weight);
         } else {
           tagWeights.set(tag, weight);
         }
@@ -217,6 +227,7 @@ export async function recommendPosts(userId: string) {
     throw new Error("Unable to recommend posts");
   }
 }
+
 
 export async function searchPosts(searchString: string, pageNumber = 1, pageSize = 20) {
   connectToDB();
