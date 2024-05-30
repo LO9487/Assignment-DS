@@ -19,6 +19,7 @@ async function page({ params }: { params: { id: string } }) {
   if (!userInfo?.onboarded) redirect("/onboarding");
 
   const thread = await fetchThreadById(params.id);
+  console.log("thread object at thread/{id}/: ", thread);
 
   return (
     <section className='relative'>
@@ -33,7 +34,7 @@ async function page({ params }: { params: { id: string } }) {
           createdAt={thread.createdAt}
           comments={thread.children}
           tags={thread.tags}  // Display tags
-          likes={thread.likes} // Include likes
+          likes={thread.likedBy} // Include likes
         />
       </div>
 
@@ -59,7 +60,7 @@ async function page({ params }: { params: { id: string } }) {
             comments={childItem.children}
             isComment
             tags={childItem.tags}  // Display tags
-            likes={childItem.likes} // Include likes
+            likes={childItem.likedBy} // Include likes
           />
         ))}
       </div>

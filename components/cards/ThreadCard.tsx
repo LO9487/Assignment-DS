@@ -1,5 +1,8 @@
+"use client";
+
 import Link from 'next/link';
 import LikeButton from '../ui/LikeButton';
+import { usePathname } from 'next/navigation';
 
 interface Props {
   id: string;
@@ -40,6 +43,8 @@ const ThreadCard: React.FC<Props> = ({
   isComment,
   tags = [] 
 }) => {
+  const pathname = usePathname();
+  const isCurrentThread = pathname ? pathname.includes(id) : false;
 
   console.log('likes field in ThreadCard.tsx: ', likes);
   return (
@@ -67,9 +72,13 @@ const ThreadCard: React.FC<Props> = ({
                 </h4>
               </Link>
             )}
-
-            <p className='mt-2 text-small-regular text-light-2'>{content}</p>
-
+             {isCurrentThread ? (
+              <p className='mt-2 text-small-regular text-light-2'>{content}</p>
+            ) : (
+              <Link href={`/thread/${id}`}>
+                <p className='mt-2 text-small-regular text-light-2'>{content}</p>
+              </Link>
+            )}
             <div className='mt-5 flex flex-col gap-3'>
               <div className='flex gap-3.5'>
                 <LikeButton postId={id} userId={currentUserId} initialLikes={likes} />
