@@ -21,7 +21,7 @@ interface Result {
       image: string;
     } | null;
     createdAt: string;
-    likes: number;
+    likedBy: string[];
     children: {
       author: {
         image: string;
@@ -40,7 +40,7 @@ async function ThreadsTab({ currentUserId, accountId, accountType }: Props) {
   let result: Result | null;
 
   result = await fetchUserPosts(accountId);
-
+  console.log('likes field in ThreadsTab ', result?.threads);
   if (!result) {
     redirect("/");
     return null;
@@ -63,7 +63,7 @@ async function ThreadsTab({ currentUserId, accountId, accountType }: Props) {
           community={thread.community}
           createdAt={thread.createdAt}
           comments={thread.children}
-          likes={thread.likes}
+          likes={thread.likedBy}
         />
       ))}
     </section>

@@ -52,7 +52,7 @@ async function Home({
                 createdAt={post.createdAt}
                 comments={post.children}
                 tags={post.tags}
-                likes={post.likes}
+                likes={post.likedBy}
               />
             ))}
           </>
