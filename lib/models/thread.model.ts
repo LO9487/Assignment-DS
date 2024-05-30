@@ -18,9 +18,9 @@ const threadSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
-  likes: {
-    type: Number,
-    default: 0,
+  likedBy: {
+    type: [String],
+    default: [],
   },
   createdAt: {
     type: Date,

@@ -23,7 +23,7 @@ export async function createThread({ text, author, communityId, path, tags = [] 
       author,
       community: communityId ? communityId : null,
       tags,
-      likes: 0, // Initialize likes
+      likes: [], // Initialize likes
     });
 
     await User.findByIdAndUpdate(author, {
@@ -150,7 +150,42 @@ export async function addCommentToThread(threadId: string, commentText: string, 
   }
 }
 
+export async function unlikePost(userId: string, threadId: string) {
+  await connectToDB();
 
+  try {
+    const post = await Thread.findById(threadId);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+
+    await Thread.findByIdAndUpdate(
+      threadId,
+      { $pull: { likedBy: userId } }, // Use $pull to remove the userId from the likedBy array
+      { new: true }
+    );
+    
+    // Use the utility function to validate and convert the thread ID
+    const objectIdThreadId = validateObjectId(threadId);
+
+    // Removes the existing like interaction from the User
+    await User.findOneAndUpdate(
+      { id: userId },
+      {
+        $pull: {
+          interactions: {
+            postId: objectIdThreadId,
+            interactionType: "like",
+          },
+        },
+      }
+    );
+    console.log(`User ${userId} unliked thread ${threadId}`);
+  } catch (err) {
+    console.error("Error while unliking post:", err);
+    throw new Error("Unable to unlike post");
+  }
+}
 
 export async function likePost(userId: string, threadId: string) {
   await connectToDB();
@@ -161,12 +196,16 @@ export async function likePost(userId: string, threadId: string) {
       throw new Error("Post not found");
     }
 
-    post.likes += 1;
-    await post.save();
-
+    await Thread.findByIdAndUpdate(
+      threadId,
+      { $addToSet: { likedBy: userId } }, // Use $addToSet to avoid duplicates
+      { upsert: true, new: true } // Ensure the document is created if it doesn't exist
+    );
+    
     // Use the utility function to validate and convert the thread ID
     const objectIdThreadId = validateObjectId(threadId);
 
+    
     // Update user interactions without casting userId to ObjectId
     await User.findOneAndUpdate(
       { id: userId },
@@ -180,6 +219,7 @@ export async function likePost(userId: string, threadId: string) {
       },
       { upsert: true } // Ensure the update creates the document if it doesn't exist
     );
+    console.log(`User ${userId} liked thread ${threadId}`);
   } catch (err) {
     console.error("Error while liking post:", err);
     throw new Error("Unable to like post");
