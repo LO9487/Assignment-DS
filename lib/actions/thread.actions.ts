@@ -116,6 +116,18 @@ export async function fetchThreadById(threadId: string) {
 }
 
 
+export async function updateThread(threadId: string, data: { text: string, tags: string[] }) {
+  try {
+    const thread = await Thread.findByIdAndUpdate(threadId, data, { new: true }).lean().exec();
+    console.log(`Updated thread ${threadId} successfully`);
+    return thread ? JSON.parse(JSON.stringify(thread)) : null;
+  } catch (error) {
+    console.error("Error updating thread:", error);
+    throw new Error("Unable to update thread");
+  }
+}
+
+
 export async function addCommentToThread(threadId: string, commentText: string, userId: string, path: string) {
   connectToDB();
 

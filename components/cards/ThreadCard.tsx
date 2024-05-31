@@ -45,6 +45,8 @@ const ThreadCard: React.FC<Props> = ({
 }) => {
   const pathname = usePathname();
   const isCurrentThread = pathname ? pathname.includes(id) : false;
+  // Determine if the current user is the author of the thread
+  const isAuthor = author && author.id === currentUserId;
 
   console.log('likes field in ThreadCard.tsx: ', likes);
   return (
@@ -80,7 +82,7 @@ const ThreadCard: React.FC<Props> = ({
               </Link>
             )}
             <div className='mt-5 flex flex-col gap-3'>
-              <div className='flex gap-3.5'>
+              <div className='flex gap-3.5 items-center'>
                 <LikeButton postId={id} userId={currentUserId} initialLikes={likes} />
                 <Link href={`/thread/${id}`}>
                   <img
@@ -91,6 +93,28 @@ const ThreadCard: React.FC<Props> = ({
                     className='cursor-pointer'
                   />
                 </Link>
+                {isAuthor && isCurrentThread && (
+                  <div className='flex gap-3.5 items-center'>
+                  <Link href={`/thread/${id}/edit`}>
+                  <img
+                    src='/assets/edit.svg'
+                    alt='edit'
+                    width={20}
+                    height={20}
+                    className='edit-button'
+                  />
+                </Link>
+                <Link href={`/thread/${id}/edit`}>
+                  <img
+                    src='/assets/delete.svg'
+                    alt='edit'
+                    width={18}
+                    height={18}
+                    className='delete-button'
+                  />
+                </Link>
+                  </div>
+              )}
               </div>
               <div className='flex gap-2'>
                 {tags.map((tag, index) => (

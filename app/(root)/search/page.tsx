@@ -22,7 +22,6 @@ async function Page({
   const pageNumber = searchParams?.page ? +searchParams.page : 1;
   const result = await searchPosts(searchParams.q || '', pageNumber);
 
-  console.log('page.tsx result.posts.author field: ', result.posts);
 
   return (
     <section>
