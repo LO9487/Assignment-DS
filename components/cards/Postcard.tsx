@@ -11,7 +11,7 @@ interface Props {
     id: string;
   };
   tags: string[];
-  likes: number;
+  likes: string[];
   comments: any[]; // Define comments
   currentUserImg: string;
   currentUserId: string;
