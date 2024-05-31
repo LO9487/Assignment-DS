@@ -35,6 +35,10 @@ const threadSchema = new mongoose.Schema({
       ref: "Thread",
     },
   ],
+  deleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const Thread = mongoose.models.Thread || mongoose.model("Thread", threadSchema);
