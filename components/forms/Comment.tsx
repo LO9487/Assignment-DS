@@ -24,6 +24,7 @@ interface Props {
   threadId: string;
   currentUserImg: string;
   currentUserId: string;
+
 }
 
 function Comment({ threadId, currentUserImg, currentUserId }: Props) {
