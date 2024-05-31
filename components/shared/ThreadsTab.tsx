@@ -24,6 +24,7 @@ interface Result {
     likedBy: string[];
     children: {
       author: {
+        id: string;
         image: string;
       };
     }[];
@@ -41,7 +42,6 @@ async function ThreadsTab({ currentUserId, accountId, accountType }: Props) {
   let result: Result | null;
 
   result = await fetchUserPosts(accountId);
-  console.log('likes field in ThreadsTab ', result?.threads);
   if (!result) {
     redirect("/");
     return null;

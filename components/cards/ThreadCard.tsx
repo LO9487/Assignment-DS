@@ -23,6 +23,7 @@ interface Props {
   createdAt: string;
   comments: {
     author: {
+      id : string;
       image: string;
     };
   }[];
@@ -50,6 +51,25 @@ const ThreadCard: React.FC<Props> = ({
   const isCurrentThread = pathname ? pathname.includes(id) : false;
   // Determine if the current user is the author of the thread
   const isAuthor = author && author.id === currentUserId;
+  const authorIds = comments.map(comment => comment.author.id);
+  const isCommentAuthor = authorIds.includes(currentUserId);
+  
+   // Determine if the current path is a profile page and belongs to the comment author
+   const isProfilePage = pathname ? pathname.startsWith('/profile/') : false;
+   const isProfileOwner = isProfilePage && pathname?.includes(currentUserId);
+  if (isProfileOwner){
+    console.log('isprofileowner');
+  }
+  if (isComment) {
+    console.log('isComment');
+  }
+  
+
+   // If the post is deleted, show only on the profile page of the replying user
+   if (deleted && !isProfileOwner && !isAuthor) {
+    console.log('returned null threadcard');
+     return null; // Hide the post from the main view
+   } 
 
   console.log('likes field in ThreadCard.tsx: ', likes);
   return (

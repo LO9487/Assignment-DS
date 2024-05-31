@@ -84,8 +84,8 @@ export async function fetchUserPosts(userId: string) {
           },
         },
       ],
-    });
-    return threads;
+    }).lean().exec();
+    return threads ? JSON.parse(JSON.stringify(threads)) : null; // Ensure no circular references
   } catch (error) {
     console.error("Error fetching user threads:", error);
     throw error;

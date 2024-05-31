@@ -59,9 +59,10 @@ async function page({ params }: { params: { id: string } }) {
             community={childItem.community}
             createdAt={childItem.createdAt}
             comments={childItem.children}
-            isComment
+            isComment={childItem.parentId}
             tags={childItem.tags}  // Display tags
             likes={childItem.likedBy} // Include likes
+            deleted={childItem.deleted}
           />
         ))}
       </div>
