@@ -35,6 +35,7 @@ async function page({ params }: { params: { id: string } }) {
           comments={thread.children}
           tags={thread.tags}  // Display tags
           likes={thread.likedBy} // Include likes
+          deleted={thread.deleted}
         />
       </div>
 

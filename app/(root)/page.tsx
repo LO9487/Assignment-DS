@@ -51,6 +51,7 @@ async function Home({
                 comments={post.children}
                 tags={post.tags}
                 likes={post.likedBy}
+                deleted={post.deleted}
               />
             ))}
           </>
