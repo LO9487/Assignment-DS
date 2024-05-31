@@ -33,14 +33,16 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId, userId, initialLikes = 
     }
   };
 
+  const isLiked = likes.includes(userId);
+
   return (
     <div className="flex items-center">
       <img
-        src='/assets/heart-gray.svg'
+        src={isLiked ? '/assets/heart-filled.svg' : '/assets/heart-gray.svg'} // Change icon based on liked state
         alt='heart'
         width={24}
         height={24}
-        className='cursor-pointer object-contain'
+        className={`cursor-pointer object-contain ${isLiked ? 'highlighted' : ''}`} // Apply highlighted class if liked
         onClick={handleLike}
         style={{ opacity: isLoading ? 0.5 : 1 }}
       />

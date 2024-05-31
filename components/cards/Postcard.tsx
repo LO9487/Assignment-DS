@@ -11,7 +11,7 @@ interface Props {
     id: string;
   };
   tags: string[];
-  likes: number;
+  likes: string[];
   comments: any[]; // Define comments
   currentUserImg: string;
   currentUserId: string;
@@ -19,6 +19,7 @@ interface Props {
 }
 
 const PostCard: React.FC<Props> = ({ id, content, author, tags, likes, comments, currentUserImg, currentUserId, deleted = false }) => {
+  console.log('PostCard author field: ', author);
   return (
     <article className='relative flex w-full flex-col rounded-xl bg-dark-2 p-7'>
       <div className='flex items-start justify-between'>
@@ -48,7 +49,7 @@ const PostCard: React.FC<Props> = ({ id, content, author, tags, likes, comments,
             <div className='mt-5 flex flex-col gap-3'>
               <div className='flex gap-3.5'>
                 {/* Add Like button and other actions here */}
-                <span>Likes: {likes}</span>
+                <span className="mt-2 text-small-regular text-light-2" style={{ color: 'grey' }}>Likes: {likes.length}</span>
               </div>
 
               {tags.length > 0 && (

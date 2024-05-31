@@ -22,6 +22,7 @@ async function Page({
   const pageNumber = searchParams?.page ? +searchParams.page : 1;
   const result = await searchPosts(searchParams.q || '', pageNumber);
 
+
   return (
     <section>
       <h1 className='head-text mb-10'>Search</h1>
@@ -40,7 +41,7 @@ async function Page({
                 content={post.text}
                 author={post.author}
                 tags={post.tags}
-                likes={post.likes}
+                likes={post.likedBy}
                 comments={post.children} // Pass comments to PostCard
                 currentUserImg={userInfo.image} // Pass current user image
                 currentUserId={userInfo._id} // Pass current user ID

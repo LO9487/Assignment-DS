@@ -65,8 +65,9 @@ export async function fetchPosts(pageNumber = 1, pageSize = 20) {
       parentId: { $in: [null, undefined] },
     });
 
-    const posts = await postsQuery.exec();
-    const isNext = totalPostsCount > skipAmount + posts.length;
+    const postResults = await postsQuery.exec();
+    const isNext = totalPostsCount > skipAmount + postResults.length;
+    const posts = JSON.parse(JSON.stringify(postResults));
 
     return { posts, isNext };
   } catch (error: any) {
@@ -115,6 +116,18 @@ export async function fetchThreadById(threadId: string) {
 }
 
 
+export async function updateThread(threadId: string, data: { text: string, tags: string[] }) {
+  try {
+    const thread = await Thread.findByIdAndUpdate(threadId, data, { new: true }).lean().exec();
+    console.log(`Updated thread ${threadId} successfully`);
+    return thread ? JSON.parse(JSON.stringify(thread)) : null;
+  } catch (error) {
+    console.error("Error updating thread:", error);
+    throw new Error("Unable to update thread");
+  }
+}
+
+
 export async function addCommentToThread(threadId: string, commentText: string, userId: string, path: string) {
   connectToDB();
 
@@ -138,12 +151,16 @@ export async function addCommentToThread(threadId: string, commentText: string, 
 
     revalidatePath(path);
 
-    // Return the newly created comment
-    return await savedCommentThread.populate({
-      path: "author",
-      model: User,
-      select: "_id name image",
-    }).execPopulate();
+    // Fetch the saved comment thread and populate it
+    const populatedCommentThread = await Thread.findById(savedCommentThread._id)
+      .populate({
+        path: "author",
+        model: User,
+        select: "_id name image",
+      })
+      .lean(); // Use lean to return a plain JavaScript object
+
+    return populatedCommentThread;
   } catch (err) {
     console.error("Error while adding comment:", err);
     throw new Error("Unable to add comment");
@@ -288,7 +305,7 @@ export async function searchPosts(searchString: string, pageNumber = 1, pageSize
       .populate({
         path: "author",
         model: User,
-        select: "_id name image",
+        select: "id name image",
       })
       .populate({
         path: "children",
@@ -296,7 +313,7 @@ export async function searchPosts(searchString: string, pageNumber = 1, pageSize
         populate: {
           path: "author",
           model: User,
-          select: "_id name image",
+          select: "id name image",
         },
       });
 

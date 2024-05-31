@@ -1,5 +1,8 @@
+"use client";
+
 import Link from 'next/link';
 import LikeButton from '../ui/LikeButton';
+import { usePathname } from 'next/navigation';
 import DeleteButton from '../ui/DeleteButton'; // Import DeleteButton
 
 interface Props {
@@ -43,6 +46,12 @@ const ThreadCard: React.FC<Props> = ({
   tags = [],
   deleted = false, // Default to false
 }) => {
+  const pathname = usePathname();
+  const isCurrentThread = pathname ? pathname.includes(id) : false;
+  // Determine if the current user is the author of the thread
+  const isAuthor = author && author.id === currentUserId;
+
+  console.log('likes field in ThreadCard.tsx: ', likes);
   return (
     <article className={`relative flex w-full flex-col rounded-xl ${isComment ? 'px-0 xs:px-7' : 'bg-dark-2 p-7'}`}>
       <div className='flex items-start justify-between'>
@@ -68,13 +77,17 @@ const ThreadCard: React.FC<Props> = ({
                 </h4>
               </Link>
             )}
-
-            <p className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`}>
+             {isCurrentThread ? (
+              <p className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`} >{content}</p>
+            ) : (
+              <Link href={`/thread/${id}`}>
+                <p className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`}>
               {content}
             </p>
-
+              </Link>
+            )}
             <div className='mt-5 flex flex-col gap-3'>
-              <div className='flex gap-3.5'>
+              <div className='flex gap-3.5 items-center'>
                 <LikeButton postId={id} userId={currentUserId} initialLikes={likes} />
                 <Link href={`/thread/${id}`}>
                   <img
@@ -85,6 +98,28 @@ const ThreadCard: React.FC<Props> = ({
                     className='cursor-pointer'
                   />
                 </Link>
+                {isAuthor && isCurrentThread && (
+                  <div className='flex gap-3.5 items-center'>
+                  <Link href={`/thread/${id}/edit`}>
+                  <img
+                    src='/assets/edit.svg'
+                    alt='edit'
+                    width={20}
+                    height={20}
+                    className='edit-button'
+                  />
+                </Link>
+                <Link href={`/thread/${id}/edit`}>
+                  <img
+                    src='/assets/delete.svg'
+                    alt='edit'
+                    width={18}
+                    height={18}
+                    className='delete-button'
+                  />
+                </Link>
+                  </div>
+              )}
               </div>
               <div className='flex gap-2'>
                 {tags.map((tag, index) => (
