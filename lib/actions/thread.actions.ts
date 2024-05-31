@@ -334,65 +334,23 @@ export async function searchPosts(searchString: string, pageNumber = 1, pageSize
   }
 }
 
-async function fetchAllChildThreads(threadId: string): Promise<any[]> {
-  const childThreads = await Thread.find({ parentId: threadId });
 
-  const descendantThreads = [];
-  for (const childThread of childThreads) {
-    const descendants = await fetchAllChildThreads(childThread._id);
-    descendantThreads.push(childThread, ...descendants);
-  }
 
-  return descendantThreads;
-}
+export async function deletePost(postId: string) {
+  await connectToDB();
 
-export async function deleteThread(id: string, path: string): Promise<void> {
   try {
-    connectToDB();
-
-    // Find the thread to be deleted (the main thread)
-    const mainThread = await Thread.findById(id).populate("author community");
-
-    if (!mainThread) {
-      throw new Error("Thread not found");
+    const post = await Thread.findById(postId);
+    if (!post) {
+      throw new Error("Post not found");
     }
 
-    // Fetch all child threads and their descendants recursively
-    const descendantThreads = await fetchAllChildThreads(id);
-
-    // Get all descendant thread IDs including the main thread ID and child thread IDs
-    const descendantThreadIds = [
-      id,
-      ...descendantThreads.map((thread) => thread._id),
-    ];
-
-    // Extract the authorIds and communityIds to update User and Community models respectively
-    const uniqueAuthorIds = new Set(
-      [
-        ...descendantThreads.map((thread) => thread.author?._id?.toString()), // Use optional chaining to handle possible undefined values
-        mainThread.author?._id?.toString(),
-      ].filter((id) => id !== undefined)
-    );
-
-    const uniqueCommunityIds = new Set(
-      [
-        ...descendantThreads.map((thread) => thread.community?._id?.toString()), // Use optional chaining to handle possible undefined values
-        mainThread.community?._id?.toString(),
-      ].filter((id) => id !== undefined)
-    );
-
-    // Recursively delete child threads and their descendants
-    await Thread.deleteMany({ _id: { $in: descendantThreadIds } });
-
-    // Update User model
-    await User.updateMany(
-      { _id: { $in: Array.from(uniqueAuthorIds) } },
-      { $pull: { threads: { $in: descendantThreadIds } } }
-    );
-
-
-    revalidatePath(path);
-  } catch (error: any) {
-    throw new Error(`Failed to delete thread: ${error.message}`);
+    // Mark post as deleted
+    post.text = "This post has been deleted.";
+    post.deleted = true;
+    await post.save();
+  } catch (err) {
+    console.error("Error while deleting post:", err);
+    throw new Error("Unable to delete post");
   }
 }

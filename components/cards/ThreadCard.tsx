@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import LikeButton from '../ui/LikeButton';
 import { usePathname } from 'next/navigation';
+import DeleteButton from '../ui/DeleteButton'; // Import DeleteButton
 
 interface Props {
   id: string;
@@ -28,6 +29,7 @@ interface Props {
   likes: string[] ;
   isComment?: boolean;
   tags?: string[]; 
+  deleted?: boolean; // Add deleted prop
 }
 
 const ThreadCard: React.FC<Props> = ({
@@ -41,7 +43,8 @@ const ThreadCard: React.FC<Props> = ({
   comments,
   likes,
   isComment,
-  tags = [] 
+  tags = [],
+  deleted = false, // Default to false
 }) => {
   const pathname = usePathname();
   const isCurrentThread = pathname ? pathname.includes(id) : false;
@@ -50,7 +53,7 @@ const ThreadCard: React.FC<Props> = ({
 
   console.log('likes field in ThreadCard.tsx: ', likes);
   return (
-    <article className={`flex w-full flex-col rounded-xl ${isComment ? 'px-0 xs:px-7' : 'bg-dark-2 p-7'}`}>
+    <article className={`relative flex w-full flex-col rounded-xl ${isComment ? 'px-0 xs:px-7' : 'bg-dark-2 p-7'}`}>
       <div className='flex items-start justify-between'>
         <div className='flex w-full flex-1 flex-row gap-4'>
           <div className='flex flex-col items-center'>
@@ -75,10 +78,12 @@ const ThreadCard: React.FC<Props> = ({
               </Link>
             )}
              {isCurrentThread ? (
-              <p className='mt-2 text-small-regular text-light-2'>{content}</p>
+              <p className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`} >{content}</p>
             ) : (
               <Link href={`/thread/${id}`}>
-                <p className='mt-2 text-small-regular text-light-2'>{content}</p>
+                <p className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`}>
+              {content}
+            </p>
               </Link>
             )}
             <div className='mt-5 flex flex-col gap-3'>
@@ -127,6 +132,11 @@ const ThreadCard: React.FC<Props> = ({
           </div>
         </div>
       </div>
+      {author?.id === currentUserId && !deleted && (
+        <div className='absolute bottom-3 right-3'>
+          <DeleteButton postId={id} /> {/* Add DeleteButton */}
+        </div>
+      )}
     </article>
   );
 };

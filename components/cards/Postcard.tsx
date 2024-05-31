@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import DeleteButton from '../ui/DeleteButton'; // Import DeleteButton
 
 interface Props {
   id: string;
@@ -10,16 +11,17 @@ interface Props {
     id: string;
   };
   tags: string[];
-  likes: string[];
-  comments: any[]; // Add comments property
-  currentUserImg: string; // Add currentUserImg property
-  currentUserId: string; // Add currentUserId property
+  likes: number;
+  comments: any[]; // Define comments
+  currentUserImg: string;
+  currentUserId: string;
+  deleted?: boolean; // Add deleted prop
 }
 
-const PostCard: React.FC<Props> = ({ id, content, author, tags, likes, comments, currentUserImg, currentUserId }) => {
+const PostCard: React.FC<Props> = ({ id, content, author, tags, likes, comments, currentUserImg, currentUserId, deleted = false }) => {
   console.log('PostCard author field: ', author);
   return (
-    <article className='flex w-full flex-col rounded-xl bg-dark-2 p-7'>
+    <article className='relative flex w-full flex-col rounded-xl bg-dark-2 p-7'>
       <div className='flex items-start justify-between'>
         <div className='flex w-full flex-1 flex-row gap-4'>
           <div className='flex flex-col items-center'>
@@ -39,9 +41,11 @@ const PostCard: React.FC<Props> = ({ id, content, author, tags, likes, comments,
                 {author.name}
               </h4>
             </Link>
-            <Link href={`/thread/${id}`}>
-              <p className='mt-2 text-small-regular text-light-2'>{content}</p>
-            </Link>
+
+            <p className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`}>
+              {content}
+            </p>
+
             <div className='mt-5 flex flex-col gap-3'>
               <div className='flex gap-3.5'>
                 {/* Add Like button and other actions here */}
@@ -58,19 +62,32 @@ const PostCard: React.FC<Props> = ({ id, content, author, tags, likes, comments,
                 </div>
               )}
 
-              {comments.length > 0 && (
-                <div className='mt-3 flex flex-col gap-2'>
-                  {comments.map(comment => (
-                    <div key={comment.id} className='bg-gray-100 text-gray-800 p-2 rounded'>
-                      <p>{comment.text}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {/* Display comments */}
+              <div className='mt-5'>
+                {comments.map((comment) => (
+                  <div key={comment._id} className='flex items-start gap-3'>
+                    <Link href={`/profile/${comment.author.id}`}>
+                      <Image
+                        src={comment.author.image}
+                        alt='comment_author_image'
+                        width={24}
+                        height={24}
+                        className='rounded-full'
+                      />
+                    </Link>
+                    <p className='text-small-regular text-light-2'>{comment.text}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
+      {author?.id === currentUserId && !deleted && (
+        <div className='absolute bottom-3 right-3'>
+          <DeleteButton postId={id} /> {/* Add DeleteButton */}
+        </div>
+      )}
     </article>
   );
 };
