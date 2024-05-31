@@ -27,6 +27,7 @@ interface Result {
         image: string;
       };
     }[];
+    deleted: boolean;
   }[];
 }
 
@@ -64,6 +65,7 @@ async function ThreadsTab({ currentUserId, accountId, accountType }: Props) {
           createdAt={thread.createdAt}
           comments={thread.children}
           likes={thread.likedBy}
+          deleted={thread.deleted}
         />
       ))}
     </section>

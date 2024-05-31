@@ -98,7 +98,7 @@ const ThreadCard: React.FC<Props> = ({
                     className='cursor-pointer'
                   />
                 </Link>
-                {isAuthor && isCurrentThread && (
+                {isAuthor && isCurrentThread && !deleted && (
                   <div className='flex gap-3.5 items-center'>
                   <Link href={`/thread/${id}/edit`}>
                   <img
@@ -107,15 +107,6 @@ const ThreadCard: React.FC<Props> = ({
                     width={20}
                     height={20}
                     className='edit-button'
-                  />
-                </Link>
-                <Link href={`/thread/${id}/edit`}>
-                  <img
-                    src='/assets/delete.svg'
-                    alt='edit'
-                    width={18}
-                    height={18}
-                    className='delete-button'
                   />
                 </Link>
                   </div>
