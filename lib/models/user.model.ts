@@ -38,6 +38,12 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  replies: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Thread",
+    },
+  ], // Add replies field
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

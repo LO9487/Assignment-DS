@@ -18,17 +18,16 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 
 import { CommentValidation } from "@/lib/validations/thread";
-import { addCommentToThread } from "@/lib/actions/thread.actions";
+import { addCommentToThread } from "@/lib/actions/thread.actions"; // Import the correct function
 
 interface Props {
   threadId: string;
   currentUserImg: string;
   currentUserId: string;
-
 }
 
 function Comment({ threadId, currentUserImg, currentUserId }: Props) {
-    const pathname = usePathname() ?? "";
+  const pathname = usePathname() ?? "";
 
   const form = useForm<z.infer<typeof CommentValidation>>({
     resolver: zodResolver(CommentValidation),
@@ -41,7 +40,7 @@ function Comment({ threadId, currentUserImg, currentUserId }: Props) {
     await addCommentToThread(
       threadId,
       values.thread,
-      JSON.parse(currentUserId),
+      currentUserId,
       pathname
     );
 

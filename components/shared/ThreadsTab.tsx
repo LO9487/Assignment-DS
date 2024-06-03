@@ -1,5 +1,7 @@
+// components/shared/ThreadsTab.tsx
+
 import { redirect } from "next/navigation";
-import { fetchUserPosts } from "@/lib/actions/user.actions";
+import { fetchUserPosts, fetchUserReplies } from "@/lib/actions/user.actions";
 import ThreadCard from "../cards/ThreadCard";
 
 interface Result {
@@ -36,9 +38,10 @@ interface Props {
   currentUserId: string;
   accountId: string;
   accountType: string;
+  posts?: any[];
 }
 
-async function ThreadsTab({ currentUserId, accountId, accountType }: Props) {
+async function ThreadsTab({ currentUserId, accountId, accountType, posts }: Props) {
   let result: Result | null;
 
   result = await fetchUserPosts(accountId);
@@ -49,7 +52,7 @@ async function ThreadsTab({ currentUserId, accountId, accountType }: Props) {
 
   return (
     <section className='mt-9 flex flex-col gap-10'>
-      {result.threads.map((thread) => (
+      {(posts || result.threads).map((thread) => (
         <ThreadCard
           key={thread._id}
           id={thread._id}

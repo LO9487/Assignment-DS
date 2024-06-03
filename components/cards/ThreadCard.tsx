@@ -1,9 +1,9 @@
-"use client";
-
-import Link from 'next/link';
-import LikeButton from '../ui/LikeButton';
-import { usePathname } from 'next/navigation';
-import DeleteButton from '../ui/DeleteButton'; // Import DeleteButton
+"use client"
+import React from "react";
+import Link from "next/link";
+import LikeButton from "../ui/LikeButton";
+import { usePathname } from "next/navigation";
+import DeleteButton from "../ui/DeleteButton"; // Import DeleteButton
 
 interface Props {
   id: string;
@@ -27,9 +27,9 @@ interface Props {
       image: string;
     };
   }[];
-  likes: string[] ;
+  likes: string[];
   isComment?: boolean;
-  tags?: string[]; 
+  tags?: string[];
   deleted?: boolean; // Add deleted prop
 }
 
@@ -99,7 +99,7 @@ const ThreadCard: React.FC<Props> = ({
             )}
              {isCurrentThread ? (
               <p className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`} >{content}</p>
-            ) : (
+             ) : (
               <Link href={`/thread/${id}`}>
                 <p className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`}>
               {content}

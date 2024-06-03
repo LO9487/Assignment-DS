@@ -51,10 +51,6 @@ export async function fetchUser(userId: string) {
     connectToDB();
 
     return await User.findOne({ id: userId });
-    // .populate({
-    //   path: "communities",
-    //   model: Community,
-    // });
   } catch (error: any) {
     throw new Error(`Failed to fetch user: ${error.message}`);
   }
@@ -64,28 +60,22 @@ export async function fetchUserPosts(userId: string) {
   try {
     connectToDB();
 
-    // Find all threads authored by the user with the given userId
     const threads = await User.findOne({ id: userId }).populate({
       path: "threads",
       model: Thread,
       populate: [
-        // {
-        //   path: "community",
-        //   model: Community,
-        //   select: "name id image _id", // Select the "name" and "_id" fields from the "Community" model
-        // },
         {
           path: "children",
           model: Thread,
           populate: {
             path: "author",
             model: User,
-            select: "name image id", // Select the "name" and "_id" fields from the "User" model
+            select: "name image id",
           },
         },
       ],
-    }).lean().exec();
-    return threads ? JSON.parse(JSON.stringify(threads)) : null; // Ensure no circular references
+    });
+    return threads;
   } catch (error) {
     console.error("Error fetching user threads:", error);
     throw error;
@@ -202,5 +192,40 @@ export async function searchPosts(searchString: string) {
   } catch (err) {
     console.error("Error while searching posts:", err);
     throw new Error("Unable to search posts");
+  }
+}
+
+export async function fetchUserReplies(userId: string) { // New function to fetch user replies
+  try {
+    connectToDB();
+
+    const user = await User.findOne({ id: userId }).populate({
+      path: "replies",
+      model: Thread,
+      populate: [
+        {
+          path: "author",
+          model: User,
+          select: "name image id",
+        },
+      ],
+    });
+
+    return user.replies;
+  } catch (error) {
+    console.error("Error fetching user replies:", error);
+    throw error;
+  }
+}
+
+export async function saveCommentToUserProfile(userId: string, commentId: string) {
+  try {
+    await connectToDB();
+    await User.findByIdAndUpdate(userId, {
+      $push: { replies: commentId },
+    });
+  } catch (err) {
+    console.error("Error saving comment to user profile:", err);
+    throw new Error("Unable to save comment to user profile");
   }
 }

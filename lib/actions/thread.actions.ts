@@ -1,9 +1,9 @@
 "use server";
-import { Types } from "mongoose";
 import { revalidatePath } from "next/cache";
 import { connectToDB } from "../mongoose";
 import User from "../models/user.model";
 import Thread from "../models/thread.model";
+import { saveCommentToUserProfile } from "../actions/user.actions";
 import { validateObjectId } from "../utils";
 
 interface Params {
@@ -115,7 +115,6 @@ export async function fetchThreadById(threadId: string) {
   }
 }
 
-
 export async function updateThread(threadId: string, data: { text: string, tags: string[] }) {
   try {
     const thread = await Thread.findByIdAndUpdate(threadId, data, { new: true }).lean().exec();
@@ -127,12 +126,14 @@ export async function updateThread(threadId: string, data: { text: string, tags:
   }
 }
 
-
 export async function addCommentToThread(threadId: string, commentText: string, userId: string, path: string) {
-  connectToDB();
+  await connectToDB();
 
   try {
-    const originalThread = await Thread.findById(threadId);
+    const validatedThreadId = validateObjectId(threadId);
+    const validatedUserId = validateObjectId(userId);
+
+    const originalThread = await Thread.findById(validatedThreadId).lean();
 
     if (!originalThread) {
       throw new Error("Thread not found");
@@ -140,27 +141,29 @@ export async function addCommentToThread(threadId: string, commentText: string, 
 
     const commentThread = new Thread({
       text: commentText,
-      author: userId,
-      parentId: threadId,
+      author: validatedUserId,
+      parentId: validatedThreadId,
     });
 
     const savedCommentThread = await commentThread.save();
 
-    originalThread.children.push(savedCommentThread._id);
-    await originalThread.save();
+    await Thread.findByIdAndUpdate(validatedThreadId, { $push: { children: savedCommentThread._id } });
+
+    // Save the comment to the user's profile
+    await saveCommentToUserProfile(validatedUserId, savedCommentThread._id);
 
     revalidatePath(path);
 
-    // Fetch the saved comment thread and populate it
     const populatedCommentThread = await Thread.findById(savedCommentThread._id)
       .populate({
         path: "author",
         model: User,
         select: "_id name image",
       })
-      .lean(); // Use lean to return a plain JavaScript object
+      .lean()
+      .exec();
 
-    return populatedCommentThread;
+    return populatedCommentThread ? JSON.parse(JSON.stringify(populatedCommentThread)) : null;
   } catch (err) {
     console.error("Error while adding comment:", err);
     throw new Error("Unable to add comment");
@@ -181,17 +184,14 @@ export async function unlikePost(userId: string, threadId: string) {
       { $pull: { likedBy: userId } }, // Use $pull to remove the userId from the likedBy array
       { new: true }
     );
-    
-    // Use the utility function to validate and convert the thread ID
-    const objectIdThreadId = validateObjectId(threadId);
 
-    // Removes the existing like interaction from the User
+    // Remove the existing like interaction from the User
     await User.findOneAndUpdate(
       { id: userId },
       {
         $pull: {
           interactions: {
-            postId: objectIdThreadId,
+            postId: threadId,
             interactionType: "like",
           },
         },
@@ -218,18 +218,14 @@ export async function likePost(userId: string, threadId: string) {
       { $addToSet: { likedBy: userId } }, // Use $addToSet to avoid duplicates
       { upsert: true, new: true } // Ensure the document is created if it doesn't exist
     );
-    
-    // Use the utility function to validate and convert the thread ID
-    const objectIdThreadId = validateObjectId(threadId);
 
-    
     // Update user interactions without casting userId to ObjectId
     await User.findOneAndUpdate(
       { id: userId },
       {
         $push: {
           interactions: {
-            postId: objectIdThreadId,
+            postId: threadId,
             interactionType: "like",
           },
         },
@@ -285,7 +281,6 @@ export async function recommendPosts(userId: string) {
   }
 }
 
-
 export async function searchPosts(searchString: string, pageNumber = 1, pageSize = 20) {
   connectToDB();
 
@@ -334,8 +329,6 @@ export async function searchPosts(searchString: string, pageNumber = 1, pageSize
   }
 }
 
-
-
 export async function deletePost(postId: string) {
   await connectToDB();
 
@@ -353,4 +346,21 @@ export async function deletePost(postId: string) {
     console.error("Error while deleting post:", err);
     throw new Error("Unable to delete post");
   }
+}
+
+export async function saveComment(threadId: string, comment: string) {
+  await connectToDB();
+
+  // Find the thread by threadId
+  const thread = await Thread.findById(threadId);
+  if (!thread) {
+    throw new Error("Thread not found");
+  }
+
+  // Add comment to the thread
+  thread.comments.push(comment);
+  await thread.save();
+
+  // Revalidate path to update the UI
+  revalidatePath(`/thread/${thread.id}`);
 }
