@@ -150,7 +150,7 @@ export async function addCommentToThread(threadId: string, commentText: string, 
     await Thread.findByIdAndUpdate(validatedThreadId, { $push: { children: savedCommentThread._id } });
 
     // Save the comment to the user's profile
-    await saveCommentToUserProfile(validatedUserId, savedCommentThread._id);
+    await saveCommentToUserProfile(validatedUserId, savedCommentThread._id, validatedThreadId);
 
     revalidatePath(path);
 

@@ -162,7 +162,7 @@ export async function getActivity(userId: string) {
       select: "name image _id",
     });
 
-    return replies;
+    return replies ? JSON.parse(JSON.stringify(replies)) : null;
   } catch (error) {
     console.error("Error fetching replies: ", error);
     throw error;
@@ -218,11 +218,17 @@ export async function fetchUserReplies(userId: string) { // New function to fetc
   }
 }
 
-export async function saveCommentToUserProfile(userId: string, commentId: string) {
+export async function saveCommentToUserProfile(userId: string, commentId: string, originalPostId: string) {
   try {
     await connectToDB();
     await User.findByIdAndUpdate(userId, {
-      $push: { replies: commentId },
+      $push: { 
+        replies: commentId,
+        interactions: {
+          postId: originalPostId,
+          interactionType: "comment",
+        }
+      },
     });
   } catch (err) {
     console.error("Error saving comment to user profile:", err);
