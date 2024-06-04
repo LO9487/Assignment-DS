@@ -57,7 +57,6 @@ function EditThread({ post, currentUserId, onUpdate }: Props) {
       if (onUpdate) {
         onUpdate(updatedPost);
       }
-      console.log('editthread onsubmit called')
       router.push(`/thread/${post._id}`); // Navigate to the current path to reflect changes
     } catch (error) {
       console.error("Error updating thread:", error);

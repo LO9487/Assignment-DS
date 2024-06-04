@@ -57,12 +57,6 @@ const ThreadCard: React.FC<Props> = ({
    // Determine if the current path is a profile page and belongs to the comment author
    const isProfilePage = pathname ? pathname.startsWith('/profile/') : false;
    const isProfileOwner = isProfilePage && pathname?.includes(currentUserId);
-  if (isProfileOwner){
-    console.log('isprofileowner');
-  }
-  if (isComment) {
-    console.log('isComment');
-  }
   
 
    // If the post is deleted, show only on the profile page of the replying user

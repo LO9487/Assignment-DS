@@ -49,7 +49,7 @@ async function ThreadsTab({ currentUserId, accountId, accountType, posts }: Prop
     redirect("/");
     return null;
   }
-
+  
   return (
     <section className='mt-9 flex flex-col gap-10'>
       {(posts || result.threads).map((thread) => (
