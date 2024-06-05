@@ -46,10 +46,8 @@ async function ThreadsTab({ currentUserId, accountId, accountType, posts }: Prop
 
   result = await fetchUserPosts(accountId);
   if (!result) {
-    redirect("/");
     return null;
   }
-  
   return (
     <section className='mt-9 flex flex-col gap-10'>
       {(posts || result.threads).map((thread) => (
@@ -69,6 +67,7 @@ async function ThreadsTab({ currentUserId, accountId, accountType, posts }: Prop
           comments={thread.children}
           likes={thread.likedBy}
           deleted={thread.deleted}
+          isComment={thread.parentId}
         />
       ))}
     </section>
