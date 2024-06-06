@@ -4,6 +4,7 @@ import Link from "next/link";
 import LikeButton from "../ui/LikeButton";
 import { usePathname } from "next/navigation";
 import DeleteButton from "../ui/DeleteButton"; // Import DeleteButton
+import ReplyButton from "../ui/ReplyButton";
 
 interface Props {
   id: string;
@@ -51,7 +52,7 @@ const ThreadCard: React.FC<Props> = ({
   const isCurrentThread = pathname ? pathname.includes(id) : false;
   // Determine if the current user is the author of the thread
   const isAuthor = author && author.id === currentUserId;
-  const authorIds = comments.map(comment => comment.author.id);
+  console.log('comments: ', comments);
   
   const isThreadPage = pathname ? pathname.startsWith('/thread/') : false;
 
@@ -156,15 +157,7 @@ const ThreadCard: React.FC<Props> = ({
             <div className='mt-5 flex flex-col gap-3'>
               <div className='flex gap-3.5 items-center'>
                 <LikeButton postId={id} userId={currentUserId} initialLikes={likes} />
-                <Link href={`/thread/${id}`}>
-                  <img
-                    src='/assets/reply.svg'
-                    alt='reply'
-                    width={24}
-                    height={24}
-                    className='cursor-pointer'
-                  />
-                </Link>
+                <ReplyButton threadId={id} commentsCount={comments? comments.length:0} />
                 {isAuthor && isCurrentThread && !deleted && (
                   <div className='flex gap-3.5 items-center'>
                   <Link href={`/thread/${id}/edit`}>
