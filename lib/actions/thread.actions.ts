@@ -18,11 +18,15 @@ export async function createThread({ text, author, communityId, path, tags = [] 
   try {
     await connectToDB();
 
+    const hashtags = text.match(/#\w+/g) || [];
+    console.log('hashtags: ', hashtags.map(tag => tag.substring(1)));
+
+
     const createdThread = await Thread.create({
       text,
       author,
       community: communityId ? communityId : null,
-      tags,
+      tags: hashtags.map(tag => tag.substring(1)),
       likes: [], // Initialize likes
     });
 
@@ -139,11 +143,16 @@ export async function addCommentToThread(threadId: string, commentText: string, 
       throw new Error("Thread not found");
     }
 
+    const hashtags = commentText.match(/#\w+/g) || [];
+    console.log('hashtags: ', hashtags.map(tag => tag.substring(1)));
+
     const commentThread = new Thread({
       text: commentText,
       author: validatedUserId,
       parentId: validatedThreadId,
+      tags: hashtags.map(tag => tag.substring(1)), // Remove the '#' from each tag
     });
+    console.log('keyword: ', commentThread.keyword);
 
     const savedCommentThread = await commentThread.save();
 

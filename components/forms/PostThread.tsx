@@ -23,21 +23,22 @@ function PostThread({ userId }: Props) {
   const pathname = usePathname() ?? "";
 
   const form = useForm({
-    resolver: zodResolver(ThreadValidationWithTags),
+    resolver: zodResolver(ThreadValidation),
     defaultValues: {
       thread: '',
-      tags: [], // Default value as an array of strings
       accountId: userId,
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof ThreadValidationWithTags>) => {
+  const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
+    console.log('button clicked');
+    const hashtags = values.thread.match(/#\w+/g) || [];
     await createThread({
       text: values.thread,
       author: userId,
       communityId: null,
       path: pathname,
-      tags: values.tags,
+      tags: hashtags.map(tag => tag.substring(1)),
     });
 
     router.push("/");
@@ -60,25 +61,13 @@ function PostThread({ userId }: Props) {
               <FormMessage />
             </FormItem>
           )}
-        />
-        <FormField
-          control={form.control}
-          name='tags'
-          render={({ field }) => (
-            <FormItem className='flex w-full flex-col gap-3'>
-              <FormLabel className='text-base-semibold text-light-2'>
-                Tags (comma separated)
-              </FormLabel>
-              <FormControl className='no-focus border border-dark-4 bg-dark-3 text-light-1'>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        /> 
         <Button type='submit' className='bg-primary-500'>
           Post
         </Button>
+        <p className='mt-2 text-small-regular text-light-2'>You can add tags to your post by prefixing words with a '#' </p>
+        
+        
       </form>
     </Form>
   );
