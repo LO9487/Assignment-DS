@@ -75,7 +75,7 @@ export async function fetchUserPosts(userId: string) {
         },
       ],
     });
-    return threads;
+    return threads ? JSON.parse(JSON.stringify(threads)) : null;
   } catch (error) {
     console.error("Error fetching user threads:", error);
     throw error;
@@ -210,8 +210,8 @@ export async function fetchUserReplies(userId: string) { // New function to fetc
         },
       ],
     });
-
-    return user.replies;
+    console.log('user.replies', user.replies);
+    return user ? JSON.parse(JSON.stringify(user.replies)) : null;
   } catch (error) {
     console.error("Error fetching user replies:", error);
     throw error;

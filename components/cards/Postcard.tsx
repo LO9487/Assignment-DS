@@ -19,7 +19,6 @@ interface Props {
 }
 
 const PostCard: React.FC<Props> = ({ id, content, author, tags, likes, comments, currentUserImg, currentUserId, deleted = false }) => {
-  console.log('PostCard author field: ', author);
   return (
     <article className='relative flex w-full flex-col rounded-xl bg-dark-2 p-7'>
       <div className='flex items-start justify-between'>

@@ -18,7 +18,7 @@ async function Page({ params }: { params: { id: string } }) {
   if (!userInfo?.onboarded) redirect("/onboarding");
 
   const userReplies = await fetchUserReplies(params.id); // Fetch user replies
-
+  console.log('returning profile', userInfo);
   return (
     <section>
       <ProfileHeader
@@ -49,25 +49,24 @@ async function Page({ params }: { params: { id: string } }) {
                     {userInfo.threads?.length}
                   </p>
                 )}
+                {tab.label === "Replies" && (
+                  <p className='ml-1 rounded-sm bg-light-4 px-2 py-1 !text-tiny-medium text-light-2'>
+                    {userReplies?.length}
+                  </p>
+                )}
               </TabsTrigger>
             ))}
           </TabsList>
+          <TabsContent key="content-Threads" value="threads" className='w-full text-light-1'> {/* Posts Tab Content */}
+            <ThreadsTab
+              currentUserId={user.id}
+              accountId={userInfo.id}
+              accountType='User'
+            />
+          </TabsContent>
 
-          {profileTabs.map((tab) => (
-            <TabsContent
-              key={`content-${tab.label}`}
-              value={tab.value}
-              className='w-full text-light-1'
-            >
-              <ThreadsTab
-                currentUserId={user.id}
-                accountId={userInfo.id}
-                accountType='User'
-              />
-            </TabsContent>
-          ))}
 
-          <TabsContent value="replies" className='w-full text-light-1'> {/* Replies Tab Content */}
+          <TabsContent key="content-Replies" value="replies" className='w-full text-light-1'> {/* Replies Tab Content */}
             <ThreadsTab
               currentUserId={user.id}
               accountId={userInfo.id}
