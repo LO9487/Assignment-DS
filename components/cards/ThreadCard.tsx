@@ -4,6 +4,7 @@ import Link from "next/link";
 import LikeButton from "../ui/LikeButton";
 import { usePathname } from "next/navigation";
 import DeleteButton from "../ui/DeleteButton"; // Import DeleteButton
+import ReplyButton from "../ui/ReplyButton";
 
 interface Props {
   id: string;
@@ -51,7 +52,6 @@ const ThreadCard: React.FC<Props> = ({
   const isCurrentThread = pathname ? pathname.includes(id) : false;
   // Determine if the current user is the author of the thread
   const isAuthor = author && author.id === currentUserId;
-  const authorIds = comments.map(comment => comment.author.id);
   
   const isThreadPage = pathname ? pathname.startsWith('/thread/') : false;
 
@@ -59,6 +59,12 @@ const ThreadCard: React.FC<Props> = ({
    const isProfilePage = pathname ? pathname.startsWith('/profile/') : false;
    const isProfileOwner = isProfilePage && pathname?.includes(currentUserId);
   
+   const highlightHashtags = (content: string) => {
+    const hashtagRegex = /#(\w+)/g;
+    return content.replace(hashtagRegex, `<span style="color: #3b82f6;">#$1</span>`);
+  };
+
+  const highlightedContent = highlightHashtags(content);
 
    // If the post is deleted, show only on the profile page of the replying user
    if (deleted && !isProfileOwner && !isAuthor) {
@@ -109,8 +115,6 @@ const ThreadCard: React.FC<Props> = ({
       </article>
     );
    } 
-
-  console.log('isComment: ', isComment);
   return (
     <article className={`relative flex w-full flex-col rounded-xl ${isComment ? 'px-0 xs:px-7' : 'bg-dark-2 p-7'}`}>
       <div className='flex items-start justify-between'>
@@ -145,26 +149,22 @@ const ThreadCard: React.FC<Props> = ({
             </div>
           )}
              {isCurrentThread ? (
-              <p className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`} >{content}</p>
+             <p
+             className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`}
+             dangerouslySetInnerHTML={{ __html: highlightedContent }}
+           />
              ) : (
               <Link href={`/thread/${id}`}>
-                <p className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`}>
-              {content}
-            </p>
+                <p
+                  className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`}
+                  dangerouslySetInnerHTML={{ __html: highlightedContent }}
+                />
               </Link>
             )}
             <div className='mt-5 flex flex-col gap-3'>
               <div className='flex gap-3.5 items-center'>
                 <LikeButton postId={id} userId={currentUserId} initialLikes={likes} />
-                <Link href={`/thread/${id}`}>
-                  <img
-                    src='/assets/reply.svg'
-                    alt='reply'
-                    width={24}
-                    height={24}
-                    className='cursor-pointer'
-                  />
-                </Link>
+                <ReplyButton threadId={id} commentsCount={comments? comments.length:0} />
                 {isAuthor && isCurrentThread && !deleted && (
                   <div className='flex gap-3.5 items-center'>
                   <Link href={`/thread/${id}/edit`}>
@@ -181,7 +181,7 @@ const ThreadCard: React.FC<Props> = ({
               </div>
               <div className='flex gap-2'>
                 {tags.map((tag, index) => (
-                  <span key={index} className='tag blue-tag'>
+                  <span key={index} className={`mt-2 text-base-regular`} style={{ color: '#3b82f6' }}>
                     #{tag}
                   </span>
                 ))}

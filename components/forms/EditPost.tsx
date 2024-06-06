@@ -1,12 +1,12 @@
 "use client";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "../ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { updateThread } from "@/lib/actions/thread.actions";
 import { ThreadValidation } from "@/lib/validations/thread";
 
@@ -32,26 +32,28 @@ const ThreadValidationWithTags = ThreadValidation.extend({
 
 function EditThread({ post, currentUserId, onUpdate }: Props) {
   const router = useRouter();
-  const pathname = usePathname() ?? "";
 
   const form = useForm({
     resolver: zodResolver(ThreadValidationWithTags),
     defaultValues: {
       thread: post.text,
-      tags: post.tags, // Set default tags as an array
       accountId: currentUserId,
     },
   });
 
+  useEffect(() => {
+    form.reset({
+      thread: post.text,
+      accountId: currentUserId,
+    });
+  }, [post.text, currentUserId, form]);
+
   const onSubmit = async (values: z.infer<typeof ThreadValidationWithTags>) => {
     try {
-        console.log('post._id: ', post._id,
-            '\nvalues.thread: ', values.thread,
-            '\nvalues.tags: ', values.tags
-        )
+      const hashtags = values.thread.match(/#\w+/g) || [];
       const updatedPost = await updateThread(post._id, {
         text: values.thread,
-        tags: values.tags,
+        tags: hashtags.map(tag => tag.substring(1)),
       });
 
       if (onUpdate) {
@@ -76,21 +78,6 @@ function EditThread({ post, currentUserId, onUpdate }: Props) {
               </FormLabel>
               <FormControl className='no-focus border border-dark-4 bg-dark-3 text-light-1'>
                 <Textarea rows={15} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='tags'
-          render={({ field }) => (
-            <FormItem className='flex w-full flex-col gap-3'>
-              <FormLabel className='text-base-semibold text-light-2'>
-                Tags (comma separated)
-              </FormLabel>
-              <FormControl className='no-focus border border-dark-4 bg-dark-3 text-light-1'>
-                <Input {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
