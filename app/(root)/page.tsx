@@ -25,7 +25,7 @@ async function Home({
 
   // Combine posts and remove duplicates
   const postMap = new Map();
-  recommendedPosts.forEach((post) => postMap.set(post._id.toString(), post));
+  recommendedPosts.forEach((post: { _id: { toString: () => any; }; }) => postMap.set(post._id.toString(), post));
   postsResult.posts.forEach((post: { _id: { toString: () => any; }; }) => postMap.set(post._id.toString(), post));
   const combinedPosts = Array.from(postMap.values());
 
