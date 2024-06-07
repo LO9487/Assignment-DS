@@ -283,7 +283,7 @@ export async function recommendPosts(userId: string) {
       model: User,
     });
 
-    return recommendedPosts;
+    return JSON.parse(JSON.stringify(recommendedPosts));
   } catch (err) {
     console.error("Error while recommending posts:", err);
     throw new Error("Unable to recommend posts");
