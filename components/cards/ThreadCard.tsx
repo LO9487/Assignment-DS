@@ -67,11 +67,10 @@ const ThreadCard: React.FC<Props> = ({
   const highlightedContent = highlightHashtags(content);
 
    // If the post is deleted, show only on the profile page of the replying user
-   if (deleted && !isProfileOwner && !isAuthor) {
-    if (!isThreadPage){
-      console.log('returned null threadcard');
-     return null; // Hide the post from the main view
-    } else return ( // If at thread/{id} of a deleted post display something
+   if (deleted && !isProfileOwner) {
+    if (isThreadPage){
+      console.log('hi');
+      return (
       <article className={`relative flex w-full flex-col rounded-xl ${isComment ? 'px-0 xs:px-7' : 'bg-dark-2 p-7'}`}>
         <div className='flex items-start justify-between'>
           <div className='flex w-full flex-1 flex-row gap-4'>
@@ -113,7 +112,11 @@ const ThreadCard: React.FC<Props> = ({
           </div>
         </div>
       </article>
-    );
+      );
+    } else{// If at thread/{id} of a deleted post display something
+    console.log('returned null threadcard');
+    return null; // Hide the post from the main view
+    };
    } 
   return (
     <article className={`relative flex w-full flex-col rounded-xl ${isComment ? 'px-0 xs:px-7' : 'bg-dark-2 p-7'}`}>
@@ -163,8 +166,12 @@ const ThreadCard: React.FC<Props> = ({
             )}
             <div className='mt-5 flex flex-col gap-3'>
               <div className='flex gap-3.5 items-center'>
-                <LikeButton postId={id} userId={currentUserId} initialLikes={likes} />
-                <ReplyButton threadId={id} commentsCount={comments? comments.length:0} />
+              {!deleted && (
+                <>
+                  <LikeButton postId={id} userId={currentUserId} initialLikes={likes} />
+                  <ReplyButton threadId={id} commentsCount={comments ? comments.length : 0} />
+                </>
+              )}
                 {isAuthor && isCurrentThread && !deleted && (
                   <div className='flex gap-3.5 items-center'>
                   <Link href={`/thread/${id}/edit`}>
@@ -179,9 +186,9 @@ const ThreadCard: React.FC<Props> = ({
                   </div>
               )}
               </div>
-              <div className='flex gap-2'>
+              <div className='flex gap-2 items-center'>
                 {tags.map((tag, index) => (
-                  <span key={index} className={`mt-2 text-base-regular`} style={{ color: '#3b82f6' }}>
+                  <span key={index} className={` mt-2 text-base-regular`} style={{ color: '#3b82f6' }}>
                     #{tag}
                   </span>
                 ))}
