@@ -48,7 +48,7 @@ function EditThread({ post, currentUserId, onUpdate }: Props) {
     });
   }, [post.text, currentUserId, form]);
 
-  const onSubmit = async (values: z.infer<typeof ThreadValidationWithTags>) => {
+  const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
     try {
       const hashtags = values.thread.match(/#\w+/g) || [];
       const updatedPost = await updateThread(post._id, {
