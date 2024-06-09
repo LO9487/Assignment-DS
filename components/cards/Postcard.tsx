@@ -16,9 +16,21 @@ interface Props {
   currentUserImg: string;
   currentUserId: string;
   deleted?: boolean; // Add deleted prop
+  parentId?: string; 
 }
 
-const PostCard: React.FC<Props> = ({ id, content, author, tags, likes, comments, currentUserImg, currentUserId, deleted = false }) => {
+const PostCard: React.FC<Props> = ({ id, content, author, tags, likes, comments, currentUserImg, currentUserId, deleted = false , parentId}) => {
+
+  const highlightHashtags = (content: string) => {
+    const hashtagRegex = /#[\w'-]+/g;
+    return content.replace(hashtagRegex, (match) => `<span style="color: #3b82f6;">${match}</span>`);
+  };
+  
+  const highlightedContent = highlightHashtags(content);
+
+  if (deleted)
+    return null;
+
   return (
     <article className='relative flex w-full flex-col rounded-xl bg-dark-2 p-7'>
       <div className='flex items-start justify-between'>
@@ -33,32 +45,41 @@ const PostCard: React.FC<Props> = ({ id, content, author, tags, likes, comments,
               />
             </Link>
           </div>
-
           <div className='flex w-full flex-col'>
+          <div className='flex items-center'>
             <Link href={`/profile/${author.id}`} className='w-fit'>
               <h4 className='cursor-pointer text-base-semibold text-light-1'>
                 {author.name}
               </h4>
             </Link>
-
-            <p className={`mt-2 text-small-regular ${deleted ? 'text-red-500' : 'text-light-2'}`}>
-              {content}
-            </p>
-
+            {parentId && (
+                  <Link href={`/thread/${parentId}`} className='w-fit ml-2'>
+                    <p className=' text-tiny-medium text-gray-1'>
+                      See original post
+                    </p>
+                  </Link>
+                )}
+            </div>
+            <Link href={`/thread/${id}`}>
+              <p
+                className={`mt-2 text-small-regular text-light-2`}
+                dangerouslySetInnerHTML={{ __html: highlightedContent }}
+              />
+            </Link>
             <div className='mt-5 flex flex-col gap-3'>
               <div className='flex gap-3.5'>
                 {/* Add Like button and other actions here */}
-                <span className="mt-2 text-small-regular text-light-2" style={{ color: 'grey' }}>Likes: {likes.length}</span>
+                <span className="mt-2 text-small-regular text-gray-1">Likes: {likes.length}</span>
               </div>
 
               {tags.length > 0 && (
-                <div className='mt-3 flex gap-2'>
-                  {tags.map(tag => (
-                    <span key={tag} className='bg-gray-200 text-gray-800 px-2 py-1 rounded'>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+               <div className='flex gap-2 items-center'>
+               {tags.map((tag, index) => (
+                 <span key={index} className={` mt-2 text-base-regular`} style={{ color: '#3b82f6' }}>
+                   #{tag}
+                 </span>
+               ))}
+             </div>
               )}
 
               {/* Display comments */}
@@ -74,12 +95,15 @@ const PostCard: React.FC<Props> = ({ id, content, author, tags, likes, comments,
                         className='rounded-full'
                       />
                     </Link>
-                    <p className='text-small-regular text-light-2'>{comment.text}</p>
+                    <p
+                      className={`mt-2 text-small-regular 'text-light-2'`}
+                      dangerouslySetInnerHTML={{ __html: highlightedContent }}
+                    />
                   </div>
                 ))}
               </div>
             </div>
-          </div>
+            </div>
         </div>
       </div>
       {author?.id === currentUserId && !deleted && (
