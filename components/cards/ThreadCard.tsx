@@ -50,6 +50,8 @@ const ThreadCard: React.FC<Props> = ({
 }) => {
   const pathname = usePathname();
   const isCurrentThread = pathname ? pathname.includes(id) : false;
+  const isHome = pathname ? pathname.startsWith('/') : false;
+
   // Determine if the current user is the author of the thread
   const isAuthor = author && author.id === currentUserId;
   
@@ -59,11 +61,16 @@ const ThreadCard: React.FC<Props> = ({
    const isProfilePage = pathname ? pathname.startsWith('/profile/') : false;
    const isProfileOwner = isProfilePage && pathname?.includes(currentUserId);
   
-   const highlightHashtags = (content: string) => {
-    const hashtagRegex = /#(\w+)/g;
-    return content.replace(hashtagRegex, `<span style="color: #3b82f6;">#$1</span>`);
-  };
+   if(!isThreadPage)
+    console.log('Not ThreadPage');
+  if (isComment)
+    console.log('isCOmment');
 
+   const highlightHashtags = (content: string) => {
+    const hashtagRegex = /#[\w'-]+/g;
+    return content.replace(hashtagRegex, (match) => `<span style="color: #3b82f6;">${match}</span>`);
+  };
+  
   const highlightedContent = highlightHashtags(content);
 
    // If the post is deleted, show only on the profile page of the replying user
@@ -119,7 +126,7 @@ const ThreadCard: React.FC<Props> = ({
     };
    } 
   return (
-    <article className={`relative flex w-full flex-col rounded-xl ${isComment ? 'px-0 xs:px-7' : 'bg-dark-2 p-7'}`}>
+    <article className={`relative flex w-full flex-col rounded-xl ${(isComment && !isHome) ? 'px-0 xs:px-7' : 'bg-dark-2 p-7'}`}>
       <div className='flex items-start justify-between'>
         <div className='flex w-full flex-1 flex-row gap-4'>
           <div className='flex flex-col items-center'>
@@ -142,7 +149,7 @@ const ThreadCard: React.FC<Props> = ({
                   {author.name}
                 </h4>
               </Link>
-              {isComment && (
+              {isComment && (isCurrentThread || !isThreadPage) && (
                 <Link href={`/thread/${parentId}`} className='w-fit ml-2'>
                   <div className=' text-small-regular text-gray-1'>
                     See original post
@@ -197,7 +204,7 @@ const ThreadCard: React.FC<Props> = ({
           </div>
         </div>
       </div>
-      {author?.id === currentUserId && !deleted && (
+      {author?.id === currentUserId && !deleted && isThreadPage && (
         <div className='absolute bottom-3 right-3'>
           <DeleteButton postId={id} /> {/* Add DeleteButton */}
         </div>

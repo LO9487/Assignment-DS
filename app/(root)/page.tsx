@@ -52,6 +52,7 @@ async function Home({
                 tags={post.tags}
                 likes={post.likedBy}
                 deleted={post.deleted}
+                isComment={!!post.parentId}
               />
             ))}
           </>

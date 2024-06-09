@@ -32,7 +32,7 @@ function PostThread({ userId }: Props) {
 
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
     console.log('button clicked');
-    const hashtags = values.thread.match(/#\w+/g) || [];
+    const hashtags = values.thread.match(/#[\w'-]+/g) || [];
     await createThread({
       text: values.thread,
       author: userId,

@@ -50,7 +50,7 @@ function EditThread({ post, currentUserId, onUpdate }: Props) {
 
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
     try {
-      const hashtags = values.thread.match(/#\w+/g) || [];
+      const hashtags = values.thread.match(/#[\w'-]+/g) || [];
       const updatedPost = await updateThread(post._id, {
         text: values.thread,
         tags: hashtags.map(tag => tag.substring(1)),
