@@ -19,7 +19,6 @@ export async function createThread({ text, author, communityId, path, tags = [] 
     await connectToDB();
 
     const hashtags = text.match(/#[\w'-]+/g) || [];
-    console.log('hashtags: ', hashtags.map(tag => tag.substring(1)));
 
 
     const createdThread = await Thread.create({
@@ -152,7 +151,6 @@ export async function addCommentToThread(threadId: string, commentText: string, 
     }
 
     const hashtags = commentText.match(/#[\w'-]+/g) || [];
-    console.log('hashtags: ', hashtags.map(tag => tag.substring(1)));
 
     const commentThread = new Thread({
       text: commentText,
@@ -160,7 +158,6 @@ export async function addCommentToThread(threadId: string, commentText: string, 
       parentId: validatedThreadId,
       tags: hashtags.map(tag => tag.substring(1)), // Remove the '#' from each tag
     });
-    console.log('keyword: ', commentThread.keyword);
 
     const savedCommentThread = await commentThread.save();
 

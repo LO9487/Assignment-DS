@@ -60,11 +60,7 @@ const ThreadCard: React.FC<Props> = ({
    // Determine if the current path is a profile page and belongs to the comment author
    const isProfilePage = pathname ? pathname.startsWith('/profile/') : false;
    const isProfileOwner = isProfilePage && pathname?.includes(currentUserId);
-  
-   if(!isThreadPage)
-    console.log('Not ThreadPage');
-  if (isComment)
-    console.log('isCOmment');
+
 
    const highlightHashtags = (content: string) => {
     const hashtagRegex = /#[\w'-]+/g;
@@ -76,7 +72,7 @@ const ThreadCard: React.FC<Props> = ({
    // If the post is deleted, show only on the profile page of the replying user
    if (deleted && !isProfileOwner) {
     if (isThreadPage){
-      console.log('hi');
+
       return (
       <article className={`relative flex w-full flex-col rounded-xl ${isComment ? 'px-0 xs:px-7' : 'bg-dark-2 p-7'}`}>
         <div className='flex items-start justify-between'>

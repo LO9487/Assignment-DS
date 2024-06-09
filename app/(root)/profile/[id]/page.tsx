@@ -15,10 +15,16 @@ async function Page({ params }: { params: { id: string } }) {
   if (!user) return null;
 
   const userInfo = await fetchUser(params.id);
-  if (!userInfo?.onboarded) redirect("/onboarding");
+  if (!userInfo?.onboarded) {
+    redirect("/onboarding");
+    return; // Ensure no further code is executed after the redirect
+  }
+
+  const isProfileOwner = user.id === userInfo.id;
+
 
   const userReplies = await fetchUserReplies(params.id); // Fetch user replies
-  console.log('returning profile', userInfo);
+
   return (
     <section>
       <ProfileHeader
@@ -28,6 +34,7 @@ async function Page({ params }: { params: { id: string } }) {
         username={userInfo.username}
         imgUrl={userInfo.image}
         bio={userInfo.bio}
+        isOwner = {isProfileOwner}
       />
 
       <div className='mt-9'>
