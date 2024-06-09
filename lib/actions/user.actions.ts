@@ -210,7 +210,6 @@ export async function fetchUserReplies(userId: string) { // New function to fetc
         },
       ],
     });
-    console.log('user.replies', user.replies);
     return user ? JSON.parse(JSON.stringify(user.replies)) : null;
   } catch (error) {
     console.error("Error fetching user replies:", error);

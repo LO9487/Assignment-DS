@@ -18,8 +18,7 @@ export async function createThread({ text, author, communityId, path, tags = [] 
   try {
     await connectToDB();
 
-    const hashtags = text.match(/#\w+/g) || [];
-    console.log('hashtags: ', hashtags.map(tag => tag.substring(1)));
+    const hashtags = text.match(/#[\w'-]+/g) || [];
 
 
     const createdThread = await Thread.create({
@@ -41,7 +40,6 @@ export async function createThread({ text, author, communityId, path, tags = [] 
     throw new Error(`Failed to create thread: ${error.message}`);
   }
 }
-
 export async function fetchPosts(pageNumber = 1, pageSize = 20) {
   try {
     await connectToDB();
@@ -57,21 +55,22 @@ export async function fetchPosts(pageNumber = 1, pageSize = 20) {
         model: User,
       })
       .populate({
-        path: "children",
-        populate: {
-          path: "author",
-          model: User,
-          select: "_id id name parentId image",
-        },
-      });
+      path: "children",
+      populate: {
+        path: "author",
+        model: User,
+        select: "_id id name parentId image",
+      },
+    });
 
     const totalPostsCount = await Thread.countDocuments({
       parentId: { $in: [null, undefined] },
     });
-
+  
     const postResults = await postsQuery.exec();
+    const shuffledPosts = shuffleArray(postResults); // Shuffle the postResults array
     const isNext = totalPostsCount > skipAmount + postResults.length;
-    const posts = JSON.parse(JSON.stringify(postResults));
+    const posts = JSON.parse(JSON.stringify(shuffledPosts));
 
     return { posts, isNext };
   } catch (error: any) {
@@ -80,6 +79,14 @@ export async function fetchPosts(pageNumber = 1, pageSize = 20) {
   }
 }
 
+function shuffleArray(array: any[]) {
+  // Fisher-Yates shuffle algorithm
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 export async function fetchThreadById(threadId: string) {
   await connectToDB();
 
@@ -143,8 +150,7 @@ export async function addCommentToThread(threadId: string, commentText: string, 
       throw new Error("Thread not found");
     }
 
-    const hashtags = commentText.match(/#\w+/g) || [];
-    console.log('hashtags: ', hashtags.map(tag => tag.substring(1)));
+    const hashtags = commentText.match(/#[\w'-]+/g) || [];
 
     const commentThread = new Thread({
       text: commentText,
@@ -152,7 +158,6 @@ export async function addCommentToThread(threadId: string, commentText: string, 
       parentId: validatedThreadId,
       tags: hashtags.map(tag => tag.substring(1)), // Remove the '#' from each tag
     });
-    console.log('keyword: ', commentThread.keyword);
 
     const savedCommentThread = await commentThread.save();
 

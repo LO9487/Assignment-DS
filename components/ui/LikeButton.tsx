@@ -15,8 +15,6 @@ const LikeButton: React.FC<LikeButtonProps> = ({ postId, userId, initialLikes = 
 
   const handleLike = async () => {
     setIsLoading(true);
-    console.log('likes ', likes);
-    console.log('initialLikes ', initialLikes);
     try {
       if (likes.includes(userId)){
         // User has already liked the post, so unlike it

@@ -9,6 +9,7 @@ interface Props {
   imgUrl: string;
   bio: string;
   type?: string;
+  isOwner: boolean;
 }
 
 function ProfileHeader({
@@ -19,6 +20,7 @@ function ProfileHeader({
   imgUrl,
   bio,
   type,
+  isOwner,
 }: Props) {
   return (
     <div className='flex w-full flex-col justify-start'>
@@ -32,15 +34,28 @@ function ProfileHeader({
               className='rounded-full object-cover shadow-2xl'
             />
           </div>
-
+          
           <div className='flex-1'>
-            <h2 className='text-left text-heading3-bold text-light-1'>
-              {name}
-            </h2>
+          <h2 className='flex items-center text-left text-heading3-bold text-light-1'>
+            {name}
+            {isOwner && (
+              <Link href={`/profile/${accountId}/edit`}>
+              <Image
+                src='/assets/edit.svg'
+                alt='edit'
+                width={20}
+                height={20}
+                className='ml-2 edit-button'
+              />
+            </Link>
+            )}
+          </h2>
+
             <p className='text-base-medium text-gray-1'>@{username}</p>
+            
           </div>
         </div>
-
+        
         {/* {accountId === authUserId && type !== "Community" && (
           <Link href='/profile/edit'>
             <div className='flex cursor-pointer gap-3 rounded-lg bg-dark-3 px-4 py-2'>

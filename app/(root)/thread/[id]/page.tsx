@@ -19,6 +19,7 @@ async function page({ params }: { params: { id: string } }) {
   if (!userInfo?.onboarded) redirect("/onboarding");
 
   const thread = await fetchThreadById(params.id);
+
   
   return (
     <section className='relative'>
@@ -35,6 +36,7 @@ async function page({ params }: { params: { id: string } }) {
           tags={thread.tags}  // Display tags
           likes={thread.likedBy} // Include likes
           deleted={thread.deleted}
+          isComment={!!thread.parentId}
         />
       </div>
 

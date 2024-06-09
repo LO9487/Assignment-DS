@@ -45,6 +45,8 @@ async function Page({
                 comments={post.children} // Pass comments to PostCard
                 currentUserImg={userInfo.image} // Pass current user image
                 currentUserId={userInfo._id} // Pass current user ID
+                deleted={post.deleted}
+                parentId={post.parentId}
               />
             ))}
           </>
