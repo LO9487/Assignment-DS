@@ -50,7 +50,8 @@ const ThreadCard: React.FC<Props> = ({
 }) => {
   const pathname = usePathname();
   const isCurrentThread = pathname ? pathname.includes(id) : false;
-  const isHome = pathname ? pathname.startsWith('/') : false;
+  const isHome = pathname ? pathname === '/' : false;
+
 
   // Determine if the current user is the author of the thread
   const isAuthor = author && author.id === currentUserId;
@@ -200,7 +201,7 @@ const ThreadCard: React.FC<Props> = ({
           </div>
         </div>
       </div>
-      {author?.id === currentUserId && !deleted && isThreadPage && (
+      {author?.id === currentUserId && !deleted && isCurrentThread && (
         <div className='absolute bottom-3 right-3'>
           <DeleteButton postId={id} /> {/* Add DeleteButton */}
         </div>
