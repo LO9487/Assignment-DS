@@ -96,8 +96,8 @@ const PostCard: React.FC<Props> = ({ id, content, author, tags, likes, comments,
                       />
                     </Link>
                     <p
-                      className={`mt-2 text-small-regular 'text-light-2'`}
-                      dangerouslySetInnerHTML={{ __html: highlightedContent }}
+                      className={`mt-2 text-small-regular text-light-2`}
+                      dangerouslySetInnerHTML={{ __html:  highlightHashtags(comment.text)}}
                     />
                   </div>
                 ))}
